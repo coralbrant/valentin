@@ -236,6 +236,12 @@ function handleYesClick() {
 function handleNoClick() {
     noButtonClicks++;
     
+    // FIRST: Clear any existing interval to stop auto-movement
+    if (noButtonInterval) {
+        clearInterval(noButtonInterval);
+        noButtonInterval = null;
+    }
+    
     shrinkNoButton();
     
     // Wait for shrink to take effect, then grow YES
@@ -245,23 +251,19 @@ function handleNoClick() {
         // Wait for YES to move, then position NO inside SI
         setTimeout(() => {
             moveNoInsideYes();
+            
+            // AFTER positioning NO inside SI, start the 2s timer
+            noButtonInterval = setInterval(() => {
+                if (!successSection.classList.contains('hidden')) {
+                    clearInterval(noButtonInterval);
+                    return;
+                }
+                if (noBtn.style.display !== 'none') {
+                    moveNoButton();
+                }
+            }, 2000);
         }, 100);
     }, 50);
-    
-    // Reset the auto-move timer so it counts 2s from this click
-    if (noButtonInterval) {
-        clearInterval(noButtonInterval);
-        noButtonInterval = null;
-    }
-    noButtonInterval = setInterval(() => {
-        if (!successSection.classList.contains('hidden')) {
-            clearInterval(noButtonInterval);
-            return;
-        }
-        if (noBtn.style.display !== 'none') {
-            moveNoButton();
-        }
-    }, 2000);
     
     // Change No button text progressively
     const noTexts = [
