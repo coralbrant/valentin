@@ -268,14 +268,14 @@ function handleNoClick() {
     
     // Show notification message
     const noMessages = [
-        null, // First click: no message
-        "¿De veras?🥺",
-        "Piénsalo bien mi amor 😬",
-        "¿Estás segura? 😢",
-        "Porfiss amor, no digas que no 🙏"
+        "¿Eso fue un no… o un 'convénceme'? 🤨",
+        "Incluye risas garantizadas 😂",
+        "Plan fino, ambiente elegante y cero estrés ✨",
+        "Última oferta antes de que se buguee la página 😏",
+        "Algo me dice que vas a decir que sí 😏"
     ];
     
-    if (noButtonClicks <= noMessages.length && noMessages[noButtonClicks - 1]) {
+    if (noButtonClicks <= noMessages.length) {
         showNotification(noMessages[noButtonClicks - 1]);
     }
 }
@@ -325,14 +325,6 @@ function showNotification(message) {
     notification.textContent = message;
     notification.classList.remove('hidden');
     notification.style.animation = 'slideDown 0.5s ease';
-    
-    // Hide after 2.5 seconds
-    setTimeout(() => {
-        notification.style.animation = 'slideUp 0.5s ease';
-        setTimeout(() => {
-            notification.classList.add('hidden');
-        }, 500);
-    }, 2500);
 }
 
 // Add CSS animations dynamically
