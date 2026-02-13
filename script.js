@@ -261,7 +261,7 @@ function handleNoClick() {
                 if (noBtn.style.display !== 'none') {
                     moveNoButton();
                 }
-            }, 2000);
+            }, 1700);
         }, 100);
     }, 50);
     
