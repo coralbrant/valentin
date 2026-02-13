@@ -1,6 +1,6 @@
 // Customizable configuration
 const config = {
-    question: "Nicos ¿Te gustaría ser mi San Valentín? <3",
+    question: "Nicos <33<br>¿Te gustaría ser mi San Valentín?",
     successMessage: "¡Lo sabía! 😊",
     successGif: "https://farm4.static.flickr.com/3262/2720527056_ce94a0ffb4_o.gif",
     yesButtonGrowthRate: 2, // Yes button growth factor
@@ -37,7 +37,7 @@ function loadConfig() {
 
 // Update content with current configuration
 function updateContent() {
-    questionText.textContent = config.question;
+    questionText.innerHTML = config.question;
     successMessage.textContent = config.successMessage;
     
     if (config.successGif) {
