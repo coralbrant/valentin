@@ -1,6 +1,6 @@
 // Customizable configuration
 const config = {
-    question: "Nicos, mi amor <3<br>¿Te gustaría ser mi San Valentín?",
+    question: "Nicos <3<br>¿Te gustaría ser mi San Valentín?",
     successMessage: "¡Lo sabía! 😊",
     successGif: "https://farm4.static.flickr.com/3262/2720527056_ce94a0ffb4_o.gif",
     yesButtonGrowthRate: 1.9, // Yes button growth factor
@@ -228,6 +228,12 @@ function handleYesClick() {
     proposalSection.classList.add('hidden');
     document.querySelector('.buttons-container').classList.add('hide-buttons');
     noBtn.style.display = 'none';
+    
+    // Hide notification message
+    if (notification) {
+        notification.style.display = 'none';
+    }
+    
     successSection.classList.remove('hidden');
     createConfetti();
     playSuccessSound();
@@ -262,7 +268,7 @@ function handleNoClick() {
                 if (noBtn.style.display !== 'none') {
                     moveNoButton();
                 }
-            }, 1500);
+            }, 2000);
         }, 100);
     }, 50);
     
