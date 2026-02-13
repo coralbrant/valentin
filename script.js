@@ -1,6 +1,6 @@
 // Customizable configuration
 const config = {
-    question: "Nicos <3<br>¿Te gustaría ser mi San Valentín?",
+    question: "Nicos, mi amor <3<br>¿Te gustaría ser mi San Valentín?",
     successMessage: "¡Lo sabía! 😊",
     successGif: "https://farm4.static.flickr.com/3262/2720527056_ce94a0ffb4_o.gif",
     yesButtonGrowthRate: 1.9, // Yes button growth factor
@@ -261,7 +261,7 @@ function handleNoClick() {
                 if (noBtn.style.display !== 'none') {
                     moveNoButton();
                 }
-            }, 1700);
+            }, 1500);
         }, 100);
     }, 50);
     
