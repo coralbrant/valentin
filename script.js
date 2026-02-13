@@ -111,6 +111,9 @@ function moveNoInsideYes() {
     noBtn.style.left = newX + 'px';
     noBtn.style.top = newY + 'px';
     noBtn.style.zIndex = '1001';
+    
+    // Apply transform with current scale (no rotation when inside)
+    noBtn.style.transform = `scale(${noButtonScale})`;
 }
 
 // Move No button randomly around screen, avoiding Yes button
