@@ -1,6 +1,6 @@
 // Customizable configuration
 const config = {
-    question: "Nicos, mi amor <3<br>¿Te gustaría ser mi San Valentín?",
+    question: "Nicos <3<br>¿Te gustaría ser mi San Valentín?",
     successMessage: "¡Lo sabía! 😊",
     successGif: "https://farm4.static.flickr.com/3262/2720527056_ce94a0ffb4_o.gif",
     yesButtonGrowthRate: 2, // Yes button growth factor
@@ -11,6 +11,7 @@ const config = {
 let noButtonClicks = 0;
 let yesButtonSize = 1;
 let noButtonScale = 1;
+let noButtonInterval = null;
 
 // DOM elements
 const proposalSection = document.getElementById('proposal-section');
@@ -45,28 +46,57 @@ function updateContent() {
     }
 }
 
+// Move Yes button randomly around screen
+function moveYesButton() {
+    yesBtn.style.position = 'fixed';
+    
+    const yesRect = yesBtn.getBoundingClientRect();
+    const yesWidth = yesRect.width;
+    const yesHeight = yesRect.height;
+    
+    // Ensure button stays fully visible with margin
+    const margin = 20;
+    const maxX = window.innerWidth - yesWidth - margin;
+    const maxY = window.innerHeight - yesHeight - margin;
+    
+    const newX = Math.random() * (maxX - margin) + margin;
+    const newY = Math.random() * (maxY - margin) + margin;
+    
+    yesBtn.style.left = newX + 'px';
+    yesBtn.style.top = newY + 'px';
+    
+    // Add bounce animation
+    yesBtn.style.animation = 'bounce 0.5s ease';
+    setTimeout(() => {
+        yesBtn.style.animation = '';
+    }, 500);
+}
+
 // Move No button randomly around screen, avoiding Yes button
 function moveNoButton() {
     noBtn.style.position = 'fixed';
     
-    const yesRect = document.querySelector('.yes-btn').getBoundingClientRect();
+    const yesRect = yesBtn.getBoundingClientRect();
     const noBtnRect = noBtn.getBoundingClientRect();
     const noBtnWidth = noBtnRect.width;
     const noBtnHeight = noBtnRect.height;
     
-    // Adjust margin based on screen size for better mobile experience
-    const margin = window.innerWidth < 480 ? 15 : 20;
-    const minDistance = window.innerWidth < 480 ? 60 : 80; // Minimum distance from Yes button
+    // Ensure button stays fully visible with margin
+    const margin = 20;
+    const minDistance = window.innerWidth < 480 ? 60 : 80;
     
     let tries = 0;
     let maxTries = 100;
     let found = false;
     let newX, newY;
     
-    // Find a position that doesn't collide with Yes button
+    // Find a position that doesn't collide with Yes button and stays visible
     while (!found && tries < maxTries) {
-        newX = Math.random() * (window.innerWidth - noBtnWidth - margin * 2) + margin;
-        newY = Math.random() * (window.innerHeight - noBtnHeight - margin * 2) + margin;
+        const maxX = window.innerWidth - noBtnWidth - margin;
+        const maxY = window.innerHeight - noBtnHeight - margin;
+        
+        newX = Math.random() * (maxX - margin) + margin;
+        newY = Math.random() * (maxY - margin) + margin;
         
         const testRect = {
             left: newX,
@@ -106,6 +136,7 @@ function growYesButton() {
     const intensity = Math.min(255, 107 + (noButtonClicks * 20));
     yesBtn.style.background = `linear-gradient(45deg, #ff${intensity.toString(16)}9d, #ff8fab)`;
     yesBtn.style.boxShadow = `0 8px 25px rgba(255, 107, 157, 0.8), 0 0 20px rgba(255, 107, 157, 0.5)`;
+    moveYesButton();
 }
 
 // Shrink No button each time it's clicked
@@ -140,6 +171,20 @@ function handleYesClick() {
 // Handle No button click - make it harder to click
 function handleNoClick() {
     noButtonClicks++;
+    
+    // Start moving No button every 2 seconds after first click
+    if (noButtonClicks === 1 && !noButtonInterval) {
+        noButtonInterval = setInterval(() => {
+            if (!successSection.classList.contains('hidden')) {
+                clearInterval(noButtonInterval);
+                return;
+            }
+            if (noBtn.style.display !== 'none') {
+                moveNoButton();
+            }
+        }, 2000);
+    }
+    
     shrinkNoButton();
     moveNoButton();
     growYesButton();
@@ -255,8 +300,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 100);
 });
 
-// Prevent No button from being selected with keyboard
+// Prevent buttons from being selected with keyboard
 noBtn.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+    }
+});
+
+yesBtn.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
     }
@@ -271,12 +322,20 @@ yesBtn.addEventListener('mouseleave', () => {
     yesBtn.style.transform = `scale(${yesButtonSize})`;
 });
 
-// Ensure No button stays visible when window is resized
+// Ensure buttons stay visible when window is resized
 window.addEventListener('resize', () => {
+    if (yesBtn.style.position === 'fixed') {
+        const yesRect = yesBtn.getBoundingClientRect();
+        if (yesRect.right < 0 || yesRect.left > window.innerWidth || 
+            yesRect.bottom < 0 || yesRect.top > window.innerHeight) {
+            moveYesButton();
+        }
+    }
+    
     if (noBtn.style.position === 'fixed') {
-        const rect = noBtn.getBoundingClientRect();
-        if (rect.right < 0 || rect.left > window.innerWidth || 
-            rect.bottom < 0 || rect.top > window.innerHeight) {
+        const noRect = noBtn.getBoundingClientRect();
+        if (noRect.right < 0 || noRect.left > window.innerWidth || 
+            noRect.bottom < 0 || noRect.top > window.innerHeight) {
             moveNoButton();
         }
     }
