@@ -1,6 +1,6 @@
 // Customizable configuration
 const config = {
-    question: "Nicos <3<br>¿Te gustaría ser mi San Valentín?",
+    question: "Nicos, mi amor <3<br>¿Te gustaría ser mi San Valentín?",
     successMessage: "¡Lo sabía! 😊",
     successGif: "https://farm4.static.flickr.com/3262/2720527056_ce94a0ffb4_o.gif",
     yesButtonGrowthRate: 1.9, // Yes button growth factor
@@ -12,6 +12,8 @@ let noButtonClicks = 0;
 let yesButtonSize = 1;
 let noButtonScale = 1;
 let noButtonInterval = null;
+let noButtonTimeout = null;
+let noButtonIsInside = false;
 
 // DOM elements
 const proposalSection = document.getElementById('proposal-section');
@@ -234,19 +236,61 @@ function handleYesClick() {
         notification.style.display = 'none';
     }
     
+    // Clear movement timers
+    if (noButtonInterval) {
+        clearInterval(noButtonInterval);
+        noButtonInterval = null;
+    }
+    if (noButtonTimeout) {
+        clearTimeout(noButtonTimeout);
+        noButtonTimeout = null;
+    }
+    
     successSection.classList.remove('hidden');
     createConfetti();
     playSuccessSound();
+}
+
+// Start the NO button movement cycle: inside → 2s → outside → 1s → inside → 1s → outside → ...
+function startNoButtonCycle() {
+    // First wait is 2 seconds (initial delay after positioning inside)
+    noButtonTimeout = setTimeout(() => {
+        if (successSection.classList.contains('hidden') && noBtn.style.display !== 'none') {
+            moveNoButton(); // Move outside
+            noButtonIsInside = false;
+            
+            // Then alternate every 1 second
+            noButtonInterval = setInterval(() => {
+                if (!successSection.classList.contains('hidden') || noBtn.style.display === 'none') {
+                    clearInterval(noButtonInterval);
+                    noButtonInterval = null;
+                    return;
+                }
+                
+                if (noButtonIsInside) {
+                    moveNoButton(); // Move outside
+                    noButtonIsInside = false;
+                } else {
+                    moveNoInsideYes(); // Move inside
+                    noButtonIsInside = true;
+                }
+            }, 1000);
+        }
+    }, 2000);
 }
 
 // Handle No button click - make it harder to click
 function handleNoClick() {
     noButtonClicks++;
     
-    // FIRST: Clear any existing interval to stop auto-movement
+    // Clear any existing timers to reset the cycle
     if (noButtonInterval) {
         clearInterval(noButtonInterval);
         noButtonInterval = null;
+    }
+    if (noButtonTimeout) {
+        clearTimeout(noButtonTimeout);
+        noButtonTimeout = null;
     }
     
     shrinkNoButton();
@@ -255,20 +299,13 @@ function handleNoClick() {
     setTimeout(() => {
         growYesButton();
         
-        // Wait for YES to move, then position NO inside SI
+        // Wait for YES to move, then position NO inside SI and start cycle
         setTimeout(() => {
             moveNoInsideYes();
+            noButtonIsInside = true;
             
-            // AFTER positioning NO inside SI, start the 1.7s timer
-            noButtonInterval = setInterval(() => {
-                if (!successSection.classList.contains('hidden')) {
-                    clearInterval(noButtonInterval);
-                    return;
-                }
-                if (noBtn.style.display !== 'none') {
-                    moveNoButton();
-                }
-            }, 2000);
+            // Start the movement cycle: 2s inside → out → 1s → in → 1s → out → ...
+            startNoButtonCycle();
         }, 100);
     }, 50);
     
