@@ -237,14 +237,16 @@ function handleNoClick() {
     noButtonClicks++;
     
     shrinkNoButton();
-    growYesButton();
     
-    // Position NO inside SI after SI has been repositioned
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
+    // Wait for shrink to take effect, then grow YES
+    setTimeout(() => {
+        growYesButton();
+        
+        // Wait for YES to move, then position NO inside SI
+        setTimeout(() => {
             moveNoInsideYes();
-        });
-    });
+        }, 100);
+    }, 50);
     
     // Reset the auto-move timer so it counts 2s from this click
     if (noButtonInterval) {
