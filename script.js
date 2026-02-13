@@ -1,6 +1,6 @@
 // Customizable configuration
 const config = {
-    question: "Nicos <3<br>¿Te gustaría ser mi San Valentín?",
+    question: "Nicos, mi amor <3<br>¿Te gustaría ser mi San Valentín?",
     successMessage: "¡Lo sabía! 😊",
     successGif: "https://farm4.static.flickr.com/3262/2720527056_ce94a0ffb4_o.gif",
     yesButtonGrowthRate: 1.9, // Yes button growth factor
@@ -262,7 +262,7 @@ function handleNoClick() {
                 if (noBtn.style.display !== 'none') {
                     moveNoButton();
                 }
-            }, 1700);
+            }, 1500);
         }, 100);
     }, 50);
     
@@ -365,6 +365,24 @@ noBtn.addEventListener('touchend', (e) => {
     handleNoClick();
 });
 
+// Reveal plan button
+document.addEventListener('DOMContentLoaded', () => {
+    const revealPlanBtn = document.getElementById('reveal-plan-btn');
+    const surpriseMessage = document.getElementById('surprise-message');
+    const successGifImg = document.getElementById('success-gif');
+    
+    if (revealPlanBtn && surpriseMessage && successGifImg) {
+        revealPlanBtn.addEventListener('click', () => {
+            // Replace the GIF with the photo
+            successGifImg.src = 'imagen.jpeg';
+            
+            // Hide button and show message
+            revealPlanBtn.style.display = 'none';
+            surpriseMessage.classList.remove('hidden');
+        });
+    }
+});
+
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     loadConfig();
@@ -419,9 +437,4 @@ window.addEventListener('resize', () => {
             moveNoButton();
         }
     }
-});
-
-// Change success GIF on load
-if (successGif) {
-    successGif.src = "https://media1.tenor.com/m/Q00qNDfVO-cAAAAd/pucca-garu.gif";
-} 
+}); 
