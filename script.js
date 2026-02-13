@@ -1,6 +1,6 @@
 // Customizable configuration
 const config = {
-    question: "Nicos, mi amor <3<br>¿Te gustaría ser mi San Valentín?",
+    question: "Nicos <3<br>¿Te gustaría ser mi San Valentín?",
     successMessage: "¡Lo sabía! 😊",
     successGif: "https://farm4.static.flickr.com/3262/2720527056_ce94a0ffb4_o.gif",
     yesButtonGrowthRate: 2, // Yes button growth factor
@@ -51,7 +51,7 @@ function moveYesButton(centerButton = false) {
     yesBtn.style.position = 'fixed';
     
     // Wait for the scale transformation to take effect before calculating position
-    requestAnimationFrame(() => {
+    setTimeout(() => {
         const yesRect = yesBtn.getBoundingClientRect();
         const yesWidth = yesRect.width;
         const yesHeight = yesRect.height;
@@ -59,24 +59,30 @@ function moveYesButton(centerButton = false) {
         let newX, newY;
         
         if (centerButton) {
-            // Center the button on the screen
-            newX = (window.innerWidth - yesWidth) / 2;
-            newY = (window.innerHeight - yesHeight) / 2;
+            // Center the button perfectly on the screen
+            newX = Math.max(0, (window.innerWidth - yesWidth) / 2);
+            newY = Math.max(0, (window.innerHeight - yesHeight) / 2);
         } else {
-            // Ensure button stays fully visible with margin
-            const margin = 30;
-            const maxX = window.innerWidth - yesWidth - margin;
-            const maxY = window.innerHeight - yesHeight - margin;
+            // Keep button center within 40% of screen center for better visibility
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
             
-            // Make sure we have valid ranges
-            if (maxX > margin && maxY > margin) {
-                newX = Math.random() * (maxX - margin) + margin;
-                newY = Math.random() * (maxY - margin) + margin;
-            } else {
-                // If button is too big, center it
-                newX = (window.innerWidth - yesWidth) / 2;
-                newY = (window.innerHeight - yesHeight) / 2;
-            }
+            // Define area where the button center should be (40% from center)
+            const rangeX = window.innerWidth * 0.4;
+            const rangeY = window.innerHeight * 0.4;
+            
+            // Random center position within the allowed range
+            const buttonCenterX = centerX + (Math.random() - 0.5) * rangeX;
+            const buttonCenterY = centerY + (Math.random() - 0.5) * rangeY;
+            
+            // Convert center position to top-left corner position
+            newX = buttonCenterX - yesWidth / 2;
+            newY = buttonCenterY - yesHeight / 2;
+            
+            // Ensure button doesn't go off screen
+            const margin = 10;
+            newX = Math.max(margin, Math.min(newX, window.innerWidth - yesWidth - margin));
+            newY = Math.max(margin, Math.min(newY, window.innerHeight - yesHeight - margin));
         }
         
         yesBtn.style.left = newX + 'px';
@@ -87,7 +93,7 @@ function moveYesButton(centerButton = false) {
         setTimeout(() => {
             yesBtn.style.animation = '';
         }, 500);
-    });
+    }, 50);
 }
 
 // Move No button randomly around screen, avoiding Yes button
