@@ -59,33 +59,19 @@ function moveYesButton(centerButton = false) {
     const pageWidth = window.innerWidth;
     const pageHeight = window.innerHeight;
     
-    // Max positions so the button stays fully inside the page
-    const minX = 0;
-    const minY = 0;
-    const maxX = pageWidth - btnWidth;
-    const maxY = pageHeight - btnHeight;
-    
     let newX, newY;
     
-    if (centerButton) {
-        // Center the button perfectly on the screen
+    if (centerButton || btnWidth >= pageWidth || btnHeight >= pageHeight) {
+        // Center the button on the screen (can be negative if button > screen)
         newX = (pageWidth - btnWidth) / 2;
         newY = (pageHeight - btnHeight) / 2;
     } else {
-        // Random position within valid area
-        if (maxX > 0 && maxY > 0) {
-            newX = Math.random() * maxX;
-            newY = Math.random() * maxY;
-        } else {
-            // Button is bigger than screen, center it
-            newX = (pageWidth - btnWidth) / 2;
-            newY = (pageHeight - btnHeight) / 2;
-        }
+        // Random position within valid area (button fits on screen)
+        const maxX = pageWidth - btnWidth;
+        const maxY = pageHeight - btnHeight;
+        newX = Math.random() * maxX;
+        newY = Math.random() * maxY;
     }
-    
-    // Clamp to ensure text never goes outside page
-    newX = Math.max(minX, Math.min(newX, maxX));
-    newY = Math.max(minY, Math.min(newY, maxY));
     
     yesBtn.style.left = newX + 'px';
     yesBtn.style.top = newY + 'px';
@@ -95,6 +81,36 @@ function moveYesButton(centerButton = false) {
     setTimeout(() => {
         yesBtn.style.animation = '';
     }, 500);
+}
+
+// Move No button inside the Yes button
+function moveNoInsideYes() {
+    noBtn.style.position = 'fixed';
+    
+    const yesRect = yesBtn.getBoundingClientRect();
+    const noRect = noBtn.getBoundingClientRect();
+    const noWidth = noRect.width;
+    const noHeight = noRect.height;
+    
+    // Random position inside the Yes button bounds
+    const minX = yesRect.left;
+    const minY = yesRect.top;
+    const maxX = yesRect.right - noWidth;
+    const maxY = yesRect.bottom - noHeight;
+    
+    let newX, newY;
+    if (maxX > minX && maxY > minY) {
+        newX = minX + Math.random() * (maxX - minX);
+        newY = minY + Math.random() * (maxY - minY);
+    } else {
+        // If NO is bigger than SI, center on top of SI
+        newX = yesRect.left + (yesRect.width - noWidth) / 2;
+        newY = yesRect.top + (yesRect.height - noHeight) / 2;
+    }
+    
+    noBtn.style.left = newX + 'px';
+    noBtn.style.top = newY + 'px';
+    noBtn.style.zIndex = '1001';
 }
 
 // Move No button randomly around screen, avoiding Yes button
@@ -217,7 +233,17 @@ function handleYesClick() {
 function handleNoClick() {
     noButtonClicks++;
     
-    // Start moving No button every 1.5 seconds after first click
+    shrinkNoButton();
+    growYesButton();
+    
+    // Position NO inside SI after SI has been repositioned
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            moveNoInsideYes();
+        });
+    });
+    
+    // Start the 1.5s auto-move interval after first click
     if (noButtonClicks === 1 && !noButtonInterval) {
         noButtonInterval = setInterval(() => {
             if (!successSection.classList.contains('hidden')) {
@@ -229,10 +255,6 @@ function handleNoClick() {
             }
         }, 1500);
     }
-    
-    shrinkNoButton();
-    moveNoButton();
-    growYesButton();
     
     // Change No button text progressively
     const noTexts = [
