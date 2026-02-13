@@ -124,7 +124,7 @@ function shrinkNoButton() {
     // Shrink by factor on each click (before 5th)
     noButtonScale *= config.noButtonShrinkFactor;
     noBtn.style.transform = `scale(${noButtonScale})`;
-    noBtn.style.fontSize = `${26 * noButtonScale}px`;
+    noBtn.style.fontSize = `${30 * noButtonScale}px`;
 }
 
 // Handle Yes button click - show success screen
