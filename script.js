@@ -3,7 +3,7 @@ const config = {
     question: "Nicos <3<br>¿Te gustaría ser mi San Valentín?",
     successMessage: "¡Lo sabía! 😊",
     successGif: "https://farm4.static.flickr.com/3262/2720527056_ce94a0ffb4_o.gif",
-    yesButtonGrowthRate: 1.8, // Yes button growth factor
+    yesButtonGrowthRate: 1.9, // Yes button growth factor
     noButtonShrinkFactor: 0.9 // No button shrink factor
 };
 
@@ -49,45 +49,46 @@ function updateContent() {
 // Move Yes button randomly around screen
 function moveYesButton(centerButton = false) {
     yesBtn.style.position = 'fixed';
-    yesBtn.style.transformOrigin = 'center center';
     
-    // Use unscaled dimensions (offsetWidth/Height ignore CSS transforms)
-    const baseWidth = yesBtn.offsetWidth;
-    const baseHeight = yesBtn.offsetHeight;
-    const scaledWidth = baseWidth * yesButtonSize;
-    const scaledHeight = baseHeight * yesButtonSize;
+    // Get the REAL rendered size of the button (includes font size and padding)
+    const rect = yesBtn.getBoundingClientRect();
+    const btnWidth = rect.width;
+    const btnHeight = rect.height;
+    
+    // Page boundaries in pixels
+    const pageWidth = window.innerWidth;
+    const pageHeight = window.innerHeight;
+    
+    // Max positions so the button stays fully inside the page
+    const minX = 0;
+    const minY = 0;
+    const maxX = pageWidth - btnWidth;
+    const maxY = pageHeight - btnHeight;
     
     let newX, newY;
     
     if (centerButton) {
         // Center the button perfectly on the screen
-        newX = (window.innerWidth - scaledWidth) / 2;
-        newY = (window.innerHeight - scaledHeight) / 2;
+        newX = (pageWidth - btnWidth) / 2;
+        newY = (pageHeight - btnHeight) / 2;
     } else {
-        // Keep button center within central area for visibility
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-        const rangeX = window.innerWidth * 0.3;
-        const rangeY = window.innerHeight * 0.3;
-        
-        const buttonCenterX = centerX + (Math.random() - 0.5) * rangeX;
-        const buttonCenterY = centerY + (Math.random() - 0.5) * rangeY;
-        
-        newX = buttonCenterX - scaledWidth / 2;
-        newY = buttonCenterY - scaledHeight / 2;
+        // Random position within valid area
+        if (maxX > 0 && maxY > 0) {
+            newX = Math.random() * maxX;
+            newY = Math.random() * maxY;
+        } else {
+            // Button is bigger than screen, center it
+            newX = (pageWidth - btnWidth) / 2;
+            newY = (pageHeight - btnHeight) / 2;
+        }
     }
     
-    // Clamp to screen bounds
-    newX = Math.max(0, Math.min(newX, window.innerWidth - scaledWidth));
-    newY = Math.max(0, Math.min(newY, window.innerHeight - scaledHeight));
+    // Clamp to ensure text never goes outside page
+    newX = Math.max(minX, Math.min(newX, maxX));
+    newY = Math.max(minY, Math.min(newY, maxY));
     
-    // CSS left/top position the unscaled element, but scale expands from center.
-    // Offset = (scaledWidth - baseWidth) / 2 to account for the scale expansion
-    const offsetX = (scaledWidth - baseWidth) / 2;
-    const offsetY = (scaledHeight - baseHeight) / 2;
-    
-    yesBtn.style.left = (newX + offsetX) + 'px';
-    yesBtn.style.top = (newY + offsetY) + 'px';
+    yesBtn.style.left = newX + 'px';
+    yesBtn.style.top = newY + 'px';
     
     // Add bounce animation
     yesBtn.style.animation = 'bounce 0.5s ease';
@@ -153,17 +154,34 @@ function moveNoButton() {
     noBtn.style.transform = `scale(${noButtonScale}) rotate(${rotation}deg)`;
 }
 
-// Make Yes button grow and change color intensity
+// Make Yes button grow by increasing font size and padding directly
 function growYesButton() {
     yesButtonSize *= config.yesButtonGrowthRate;
-    yesBtn.style.transform = `scale(${yesButtonSize})`;
+    
+    // Grow font size and padding directly (no transform scale)
+    const baseFontSize = 30; // base font size in px
+    const basePaddingV = 28; // base vertical padding
+    const basePaddingH = 75; // base horizontal padding
+    
+    const newFontSize = baseFontSize * yesButtonSize;
+    const newPaddingV = basePaddingV * yesButtonSize;
+    const newPaddingH = basePaddingH * yesButtonSize;
+    
+    yesBtn.style.fontSize = newFontSize + 'px';
+    yesBtn.style.padding = newPaddingV + 'px ' + newPaddingH + 'px';
+    yesBtn.style.transform = 'none';
+    
     const intensity = Math.min(255, 107 + (noButtonClicks * 20));
     yesBtn.style.background = `linear-gradient(45deg, #ff${intensity.toString(16)}9d, #ff8fab)`;
     yesBtn.style.boxShadow = `0 8px 25px rgba(255, 107, 157, 0.8), 0 0 20px rgba(255, 107, 157, 0.5)`;
     
-    // Center button on 5th click, otherwise move randomly
+    // On 5th click center it, otherwise random position
     const shouldCenter = noButtonClicks === 5;
-    moveYesButton(shouldCenter);
+    
+    // Use requestAnimationFrame to ensure the browser has rendered the new size
+    requestAnimationFrame(() => {
+        moveYesButton(shouldCenter);
+    });
 }
 
 // Shrink No button each time it's clicked
@@ -292,12 +310,12 @@ noBtn.addEventListener('click', handleNoClick);
 // Add touch support for better mobile experience
 yesBtn.addEventListener('touchstart', (e) => {
     e.preventDefault();
-    yesBtn.style.transform = `scale(${yesButtonSize * 1.05})`;
+    yesBtn.style.opacity = '0.9';
 });
 
 yesBtn.addEventListener('touchend', (e) => {
     e.preventDefault();
-    yesBtn.style.transform = `scale(${yesButtonSize})`;
+    yesBtn.style.opacity = '1';
     handleYesClick();
 });
 
@@ -342,11 +360,11 @@ yesBtn.addEventListener('keydown', (e) => {
 
 // Add dramatic hover effect to Yes button
 yesBtn.addEventListener('mouseenter', () => {
-    yesBtn.style.transform = `scale(${yesButtonSize * 1.1})`;
+    yesBtn.style.opacity = '0.9';
 });
 
 yesBtn.addEventListener('mouseleave', () => {
-    yesBtn.style.transform = `scale(${yesButtonSize})`;
+    yesBtn.style.opacity = '1';
 });
 
 // Ensure buttons stay visible when window is resized
