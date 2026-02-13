@@ -243,18 +243,20 @@ function handleNoClick() {
         });
     });
     
-    // Start the 1.5s auto-move interval after first click
-    if (noButtonClicks === 1 && !noButtonInterval) {
-        noButtonInterval = setInterval(() => {
-            if (!successSection.classList.contains('hidden')) {
-                clearInterval(noButtonInterval);
-                return;
-            }
-            if (noBtn.style.display !== 'none') {
-                moveNoButton();
-            }
-        }, 2000);
+    // Reset the auto-move timer so it counts 2s from this click
+    if (noButtonInterval) {
+        clearInterval(noButtonInterval);
+        noButtonInterval = null;
     }
+    noButtonInterval = setInterval(() => {
+        if (!successSection.classList.contains('hidden')) {
+            clearInterval(noButtonInterval);
+            return;
+        }
+        if (noBtn.style.display !== 'none') {
+            moveNoButton();
+        }
+    }, 2000);
     
     // Change No button text progressively
     const noTexts = [
