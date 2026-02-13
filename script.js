@@ -253,7 +253,7 @@ function handleNoClick() {
             if (noBtn.style.display !== 'none') {
                 moveNoButton();
             }
-        }, 1500);
+        }, 2000);
     }
     
     // Change No button text progressively
