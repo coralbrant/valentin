@@ -21,6 +21,7 @@ const successMessage = document.getElementById('success-message');
 const yesBtn = document.getElementById('yes-btn');
 const noBtn = document.getElementById('no-btn');
 const successGif = document.getElementById('success-gif');
+const notification = document.getElementById('notification');
 
 // Load custom configuration from external file
 function loadConfig() {
@@ -265,21 +266,17 @@ function handleNoClick() {
         }, 100);
     }, 50);
     
-    // Change No button text progressively
-    const noTexts = [
-        "¿Seguro?",
+    // Show notification message
+    const noMessages = [
+        null, // First click: no message
         "¿De veras?🥺",
-        "Piénsalo bien mi amor",
+        "Piénsalo bien mi amor 😬",
         "¿Estás segura? 😢",
-        "Porfiss amor, no digas que no",
-        "Por favor",
-        "Te lo pido",
-        "❤️",
-        "No me hagas esto",
-        "😢"
+        "Porfiss amor, no digas que no 🙏"
     ];
-    if (noButtonClicks < noTexts.length) {
-        noBtn.textContent = noTexts[noButtonClicks];
+    
+    if (noButtonClicks <= noMessages.length && noMessages[noButtonClicks - 1]) {
+        showNotification(noMessages[noButtonClicks - 1]);
     }
 }
 
@@ -321,6 +318,21 @@ function playSuccessSound() {
     // Add audio file here if desired
     // const audio = new Audio('config/success.mp3');
     // audio.play().catch(e => console.log('Audio not available'));
+}
+
+// Show notification message at top
+function showNotification(message) {
+    notification.textContent = message;
+    notification.classList.remove('hidden');
+    notification.style.animation = 'slideDown 0.5s ease';
+    
+    // Hide after 2.5 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideUp 0.5s ease';
+        setTimeout(() => {
+            notification.classList.add('hidden');
+        }, 500);
+    }, 2500);
 }
 
 // Add CSS animations dynamically
