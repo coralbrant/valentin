@@ -3,7 +3,7 @@ const config = {
     question: "Nicos <3<br>¿Te gustaría ser mi San Valentín?",
     successMessage: "¡Lo sabía! 😊",
     successGif: "https://farm4.static.flickr.com/3262/2720527056_ce94a0ffb4_o.gif",
-    yesButtonGrowthRate: 1.4, // Yes button growth factor
+    yesButtonGrowthRate: 1.8, // Yes button growth factor
     noButtonShrinkFactor: 0.9 // No button shrink factor
 };
 
