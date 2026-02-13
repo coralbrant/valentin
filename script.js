@@ -1,6 +1,6 @@
 // Customizable configuration
 const config = {
-    question: "Nicos <3<br>¿Te gustaría ser mi San Valentín?",
+    question: "Nicos, mi amor <3<br>¿Te gustaría ser mi San Valentín?",
     successMessage: "¡Lo sabía! 😊",
     successGif: "https://farm4.static.flickr.com/3262/2720527056_ce94a0ffb4_o.gif",
     yesButtonGrowthRate: 2, // Yes button growth factor
@@ -47,29 +47,47 @@ function updateContent() {
 }
 
 // Move Yes button randomly around screen
-function moveYesButton() {
+function moveYesButton(centerButton = false) {
     yesBtn.style.position = 'fixed';
     
-    const yesRect = yesBtn.getBoundingClientRect();
-    const yesWidth = yesRect.width;
-    const yesHeight = yesRect.height;
-    
-    // Ensure button stays fully visible with margin
-    const margin = 20;
-    const maxX = window.innerWidth - yesWidth - margin;
-    const maxY = window.innerHeight - yesHeight - margin;
-    
-    const newX = Math.random() * (maxX - margin) + margin;
-    const newY = Math.random() * (maxY - margin) + margin;
-    
-    yesBtn.style.left = newX + 'px';
-    yesBtn.style.top = newY + 'px';
-    
-    // Add bounce animation
-    yesBtn.style.animation = 'bounce 0.5s ease';
-    setTimeout(() => {
-        yesBtn.style.animation = '';
-    }, 500);
+    // Wait for the scale transformation to take effect before calculating position
+    requestAnimationFrame(() => {
+        const yesRect = yesBtn.getBoundingClientRect();
+        const yesWidth = yesRect.width;
+        const yesHeight = yesRect.height;
+        
+        let newX, newY;
+        
+        if (centerButton) {
+            // Center the button on the screen
+            newX = (window.innerWidth - yesWidth) / 2;
+            newY = (window.innerHeight - yesHeight) / 2;
+        } else {
+            // Ensure button stays fully visible with margin
+            const margin = 30;
+            const maxX = window.innerWidth - yesWidth - margin;
+            const maxY = window.innerHeight - yesHeight - margin;
+            
+            // Make sure we have valid ranges
+            if (maxX > margin && maxY > margin) {
+                newX = Math.random() * (maxX - margin) + margin;
+                newY = Math.random() * (maxY - margin) + margin;
+            } else {
+                // If button is too big, center it
+                newX = (window.innerWidth - yesWidth) / 2;
+                newY = (window.innerHeight - yesHeight) / 2;
+            }
+        }
+        
+        yesBtn.style.left = newX + 'px';
+        yesBtn.style.top = newY + 'px';
+        
+        // Add bounce animation
+        yesBtn.style.animation = 'bounce 0.5s ease';
+        setTimeout(() => {
+            yesBtn.style.animation = '';
+        }, 500);
+    });
 }
 
 // Move No button randomly around screen, avoiding Yes button
@@ -136,7 +154,10 @@ function growYesButton() {
     const intensity = Math.min(255, 107 + (noButtonClicks * 20));
     yesBtn.style.background = `linear-gradient(45deg, #ff${intensity.toString(16)}9d, #ff8fab)`;
     yesBtn.style.boxShadow = `0 8px 25px rgba(255, 107, 157, 0.8), 0 0 20px rgba(255, 107, 157, 0.5)`;
-    moveYesButton();
+    
+    // Center button on 5th click, otherwise move randomly
+    const shouldCenter = noButtonClicks === 5;
+    moveYesButton(shouldCenter);
 }
 
 // Shrink No button each time it's clicked
