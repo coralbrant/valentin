@@ -1,6 +1,6 @@
 // Customizable configuration
 const config = {
-    question: "Nicos, mi amor <3<br>¿Te gustaría ser mi San Valentín?",
+    question: "Nicos <3<br>¿Te gustaría ser mi San Valentín?",
     successMessage: "¡Lo sabía! 😊",
     successGif: "https://farm4.static.flickr.com/3262/2720527056_ce94a0ffb4_o.gif",
     yesButtonGrowthRate: 1.9, // Yes button growth factor
@@ -252,7 +252,7 @@ function handleNoClick() {
         setTimeout(() => {
             moveNoInsideYes();
             
-            // AFTER positioning NO inside SI, start the 2s timer
+            // AFTER positioning NO inside SI, start the 1.7s timer
             noButtonInterval = setInterval(() => {
                 if (!successSection.classList.contains('hidden')) {
                     clearInterval(noButtonInterval);
@@ -261,17 +261,17 @@ function handleNoClick() {
                 if (noBtn.style.display !== 'none') {
                     moveNoButton();
                 }
-            }, 1400);
+            }, 1700);
         }, 100);
     }, 50);
     
     // Change No button text progressively
     const noTexts = [
         "¿Seguro?",
-        "¿De verdad?",
-        "Piénsalo bien",
-        "¿Estás segura?",
-        "Última oportunidad",
+        "¿De veras?🥺",
+        "Piénsalo bien mi amor",
+        "¿Estás segura? 😢",
+        "Porfiss amor, no digas que no",
         "Por favor",
         "Te lo pido",
         "❤️",
